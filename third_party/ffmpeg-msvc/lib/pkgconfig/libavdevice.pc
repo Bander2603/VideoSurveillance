@@ -1,0 +1,14 @@
+prefix=/c/Users/dusdu/Desktop/CPP/VideoSurveillance/third_party/ffmpeg-msvc
+exec_prefix=${prefix}
+libdir=/c/Users/dusdu/Desktop/CPP/VideoSurveillance/third_party/ffmpeg-msvc/lib
+includedir=/c/Users/dusdu/Desktop/CPP/VideoSurveillance/third_party/ffmpeg-msvc/include
+
+Name: libavdevice
+Description: FFmpeg device handling library
+Version: 62.2.100
+Requires: 
+Requires.private: libavfilter >= 11.10.101, libswscale >= 9.3.100, libavformat >= 62.8.101, libavcodec >= 62.23.102, libswresample >= 6.2.100, libavutil >= 60.20.100
+Conflicts:
+Libs: -L${libdir}  -lavdevice 
+Libs.private: psapi.lib ole32.lib strmiids.lib uuid.lib oleaut32.lib shlwapi.lib gdi32.lib vfw32.lib
+Cflags: -I${includedir}

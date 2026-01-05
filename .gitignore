@@ -1,0 +1,11 @@
+out/
+build/
+cmake-build-*/
+
+.vs/
+*.sln
+*.vcxproj*
+*.user
+
+.env
+.env.*
