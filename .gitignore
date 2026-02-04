@@ -2,6 +2,11 @@ out/
 build/
 cmake-build-*/
 
+# FFmpeg (local build, not versioned)
+third_party/ffmpeg-msvc/bin/
+third_party/ffmpeg-msvc/lib/
+third_party/ffmpeg-msvc/include/
+
 .vs/
 *.sln
 *.vcxproj*
@@ -9,3 +14,4 @@ cmake-build-*/
 
 .env
 .env.*
+!.env.example

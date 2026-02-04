@@ -10,6 +10,7 @@ set(CMAKE_AUTOUIC ON)
 
 set(FFMPEG_ROOT
     "${CMAKE_SOURCE_DIR}/third_party/ffmpeg-msvc"
+    CACHE PATH "Path to FFmpeg root (bin/lib/include)"
 )
 
 set(FFMPEG_INCLUDE_DIR
@@ -20,7 +21,14 @@ set(FFMPEG_LIB_DIR
     "${FFMPEG_ROOT}/lib"
 )
 
-set(CMAKE_PREFIX_PATH "C:/Qt/6.10.1/msvc2022_64")
+set(QT_ROOT "" CACHE PATH "Path to Qt root (e.g. C:/Qt/6.10.1/msvc2022_64)")
+if (QT_ROOT)
+    list(PREPEND CMAKE_PREFIX_PATH "${QT_ROOT}")
+elseif(DEFINED ENV{QT_ROOT})
+    list(PREPEND CMAKE_PREFIX_PATH "$ENV{QT_ROOT}")
+elseif(DEFINED ENV{QTDIR})
+    list(PREPEND CMAKE_PREFIX_PATH "$ENV{QTDIR}")
+endif()
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
