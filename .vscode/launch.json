@@ -2,18 +2,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run VideoSurveillance (x64-debug)",
+            "name": "Run VideoSurveillance (msvc-debug)",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/out/build/x64-debug/VideoSurveillance.exe",
-            "cwd": "${workspaceFolder}/out/build/x64-debug",
-            "environment": [
-                {
-                    "name": "PATH",
-                    "value": "${env:QT_ROOT}/bin;${env:PATH}"
-                }
-            ],
-            "externalConsole": false,
+            "program": "${workspaceFolder}/out/build/msvc-debug/Debug/VideoSurveillance.exe",
+            "cwd": "${workspaceFolder}/out/build/msvc-debug/Debug",
+            "preLaunchTask": "Build VideoSurveillance (msvc-debug)",
+            "console": "internalConsole",
             "stopAtEntry": false
         }
     ]

@@ -31,6 +31,8 @@ A C++/Qt desktop app that displays multiple RTSP streams (Tapo cameras) in a gri
    - `QT_ROOT` (recommended)
    - `QTDIR`
 
+   On Windows, the project now also auto-detects `C:/Qt/*/msvc2022_64` if those variables are not set.
+
 2. Place your FFmpeg build under `third_party/ffmpeg-msvc/` so these folders exist:
    - `third_party/ffmpeg-msvc/bin/`
    - `third_party/ffmpeg-msvc/lib/`
@@ -52,12 +54,17 @@ Then fill in your RTSP URLs in `.env`.
 
 ## Build
 ```bash
-cmake --preset x64-debug
-cmake --build out/build/x64-debug
+cmake --preset msvc-debug
+cmake --build --preset msvc-debug-build
 ```
 
 ## Run
-Launch the generated executable from your build folder (or from Visual Studio).
+Launch the generated executable from `out/build/msvc-debug/Debug/` or press `F5` in VS Code.
+
+## VS Code
+- Use the `Run VideoSurveillance (msvc-debug)` launch configuration.
+- `F5` runs configure and build automatically before launch.
+- The older `x64-debug` preset still exists for developer-shell/Ninja workflows, but the VS Code path now defaults to the MSVC preset that does not require `cl.exe` in `PATH`.
 
 ## Configuration
 `.env` variables:

@@ -15,3 +15,6 @@ third_party/ffmpeg-msvc/include/
 .env
 .env.*
 !.env.example
+
+# Local user presets (machine-specific paths)
+CMakeUserPresets.json
