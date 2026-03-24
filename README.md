@@ -1,6 +1,10 @@
-﻿# VideoSurveillance
+# VideoSurveillance
 
 A C++/Qt desktop app that displays multiple RTSP streams (Tapo cameras) in a grid using a custom FFmpeg build. Built as a portfolio-grade, real-time video monitoring showcase.
+
+## Screenshot
+
+![VideoSurveillance live grid](docs/images/live-grid-overview.png)
 
 ## Features
 - Dynamic camera grid built from `.env` entries.
@@ -92,4 +96,3 @@ Legacy variables `VS_RTSP_TC72`, `VS_RTSP_C210` and `VS_RTSP_TC70` are still acc
 
 ## License
 MIT
-
