@@ -1,10 +1,12 @@
-# VideoSurveillance
+﻿# VideoSurveillance
 
 A C++/Qt desktop app that displays multiple RTSP streams (Tapo cameras) in a grid using a custom FFmpeg build. Built as a portfolio-grade, real-time video monitoring showcase.
 
 ## Features
-- 3-camera grid view with per-camera decoding threads.
+- Dynamic camera grid built from `.env` entries.
+- Reusable per-camera panels with live status badges.
 - RTSP over TCP for stability.
+- Automatic reconnect with retry backoff.
 - Low-latency decode setup (FFmpeg `nobuffer`).
 - `.env`-based configuration for camera endpoints.
 
@@ -68,16 +70,21 @@ Launch the generated executable from `out/build/msvc-debug/Debug/` or press `F5`
 
 ## Configuration
 `.env` variables:
-- `VS_RTSP_TC72`
-- `VS_RTSP_C210`
-- `VS_RTSP_TC70`
+- `VS_CAMERA_<n>_NAME`
+- `VS_CAMERA_<n>_URL`
+- `VS_CAMERA_<n>_ENABLED` (optional)
 
 Example:
 ```
-VS_RTSP_TC72=rtsp://user:pass@192.168.0.96:554/stream1
-VS_RTSP_C210=rtsp://user:pass@192.168.0.159:554/stream1
-VS_RTSP_TC70=rtsp://user:pass@192.168.0.222:554/stream1
+VS_CAMERA_1_NAME=Front Door
+VS_CAMERA_1_URL=rtsp://user:pass@192.168.0.96:554/stream1
+VS_CAMERA_2_NAME=Garage
+VS_CAMERA_2_URL=rtsp://user:pass@192.168.0.159:554/stream1
+VS_CAMERA_3_NAME=Backyard
+VS_CAMERA_3_URL=rtsp://user:pass@192.168.0.222:554/stream1
 ```
+
+Legacy variables `VS_RTSP_TC72`, `VS_RTSP_C210` and `VS_RTSP_TC70` are still accepted if no `VS_CAMERA_*` entries exist.
 
 ## Notes
 - Do not commit `.env` files; they contain secrets.
@@ -85,3 +92,4 @@ VS_RTSP_TC70=rtsp://user:pass@192.168.0.222:554/stream1
 
 ## License
 MIT
+

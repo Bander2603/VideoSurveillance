@@ -51,13 +51,19 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
 add_executable(VideoSurveillance
     app/main.cpp
+    core/CameraConfig.h
+    core/CameraConfig.cpp
     core/FfmpegTest.cpp
     core/DotEnv.h
     core/DotEnv.cpp
     core/CameraStream.h
     core/CameraStream.cpp
+    ui/CameraPanel.h
+    ui/CameraPanel.cpp
     ui/MainWindow.cpp
     ui/MainWindow.h
+    ui/VideoFrameWidget.h
+    ui/VideoFrameWidget.cpp
 )
 
 set_target_properties(VideoSurveillance PROPERTIES
@@ -178,3 +184,4 @@ if (WIN32)
         message(WARNING "No FFmpeg DLLs found under ${FFMPEG_ROOT}/bin")
     endif()
 endif()
+

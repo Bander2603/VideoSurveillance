@@ -1,93 +1,100 @@
 #include "MainWindow.h"
 
-#include <QLabel>
+#include <QAction>
 #include <QGridLayout>
-#include <QDebug>
-#include <QPixmap>
+#include <QLabel>
+#include <QStatusBar>
+#include <QToolBar>
+#include <QVBoxLayout>
+#include <QWidget>
 
-#include "core/CameraStream.h"
+#include <cmath>
 
-QLabel* MainWindow::makeVideoLabel()
-{
-    auto* l = new QLabel();
-    l->setAlignment(Qt::AlignCenter);
-    l->setMinimumSize(320, 240);
-    l->setStyleSheet("background-color: black; color: white;");
-    l->setText("No signal");
-    l->setScaledContents(false);
-    return l;
-}
+#include "core/CameraConfig.h"
+#include "core/DotEnv.h"
+#include "ui/CameraPanel.h"
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
 {
-    resize(1200, 800);
-    setWindowTitle("RTSP Video Surveillance - Grid");
+    resize(1280, 840);
+    setWindowTitle("RTSP Video Surveillance");
+    setStyleSheet(
+        "QMainWindow { background: #020617; }"
+        "QToolBar { background: #0f172a; border: none; spacing: 8px; padding: 8px; }"
+        "QToolButton { color: #e2e8f0; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 6px 12px; }"
+        "QToolButton:hover { background: #334155; }"
+        "QStatusBar { color: #94a3b8; }"
+        "QWidget#cameraPanel { background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; }");
+
+    auto* toolBar = addToolBar("Controls");
+    toolBar->setMovable(false);
+    QAction* reloadAction = toolBar->addAction("Reload cameras");
+    connect(reloadAction, &QAction::triggered, this, &MainWindow::reloadCameraGrid);
 
     m_central = new QWidget(this);
     setCentralWidget(m_central);
 
-    auto* grid = new QGridLayout(m_central);
-    grid->setContentsMargins(6, 6, 6, 6);
-    grid->setSpacing(6);
+    auto* rootLayout = new QVBoxLayout(m_central);
+    rootLayout->setContentsMargins(10, 10, 10, 10);
+    rootLayout->setSpacing(10);
 
-    m_label1 = makeVideoLabel();
-    m_label2 = makeVideoLabel();
-    m_label3 = makeVideoLabel();
-    auto* placeholder = makeVideoLabel();
-    placeholder->setText("Reserved");
+    m_grid = new QGridLayout();
+    m_grid->setContentsMargins(0, 0, 0, 0);
+    m_grid->setHorizontalSpacing(10);
+    m_grid->setVerticalSpacing(10);
 
-    grid->addWidget(m_label1, 0, 0);
-    grid->addWidget(m_label2, 0, 1);
-    grid->addWidget(m_label3, 1, 0);
-    grid->addWidget(placeholder, 1, 1);
+    rootLayout->addLayout(m_grid, 1);
 
-    // Streams (1 hilo por cámara)
-    m_cam1 = new CameraStream(this);
-    m_cam2 = new CameraStream(this);
-    m_cam3 = new CameraStream(this);
-
-    auto connectStreamToLabel = [](CameraStream* stream, QLabel* label, const char* tag) {
-        QObject::connect(stream, &CameraStream::frameReady, label, [label](const QImage& img) {
-            // Escala al tamaño actual del label
-            label->setPixmap(QPixmap::fromImage(img).scaled(
-                label->size(),
-                Qt::KeepAspectRatio,
-                Qt::SmoothTransformation));
-            });
-
-        QObject::connect(stream, &CameraStream::error, label, [tag](const QString& msg) {
-            qDebug() << tag << "[ERROR]" << msg;
-            });
-
-        QObject::connect(stream, &CameraStream::info, label, [tag](const QString& msg) {
-            qDebug() << tag << "[INFO]" << msg;
-            });
-        };
-
-    connectStreamToLabel(m_cam1, m_label1, "[TC72]");
-    connectStreamToLabel(m_cam2, m_label2, "[C210]");
-    connectStreamToLabel(m_cam3, m_label3, "[TC70]");
-
-    auto must = [](const char* key) {
-        const QString v = qEnvironmentVariable(key);
-        if (v.isEmpty())
-            qDebug() << "[CONFIG] Missing:" << key;
-        return v;
-        };
-
-    const QString url1 = must("VS_RTSP_TC72");
-    const QString url2 = must("VS_RTSP_C210");
-    const QString url3 = must("VS_RTSP_TC70");
-
-    if (!url1.isEmpty()) m_cam1->start(url1);
-    if (!url2.isEmpty()) m_cam2->start(url2);
-    if (!url3.isEmpty()) m_cam3->start(url3);
+    reloadCameraGrid();
 }
 
-MainWindow::~MainWindow()
+MainWindow::~MainWindow() = default;
+
+void MainWindow::reloadCameraGrid()
 {
-    if (m_cam1) m_cam1->stop();
-    if (m_cam2) m_cam2->stop();
-    if (m_cam3) m_cam3->stop();
+    DotEnv::loadFile(".env");
+    const QList<CameraConfig> configs = loadCameraConfigs();
+
+    clearGrid();
+
+    if (configs.isEmpty()) {
+        auto* emptyStateLabel = new QLabel(
+            "No cameras configured.\n"
+            "Use VS_CAMERA_1_NAME / VS_CAMERA_1_URL in .env or keep the legacy VS_RTSP_* variables.",
+            this);
+        emptyStateLabel->setAlignment(Qt::AlignCenter);
+        emptyStateLabel->setStyleSheet("color: #cbd5e1; font-size: 16px;");
+        m_grid->addWidget(emptyStateLabel, 0, 0);
+        statusBar()->showMessage("No cameras configured");
+        return;
+    }
+
+    const int columns = std::max(1, static_cast<int>(std::ceil(std::sqrt(configs.size()))));
+    for (int i = 0; i < configs.size(); ++i) {
+        const int row = i / columns;
+        const int column = i % columns;
+        m_grid->addWidget(new CameraPanel(configs[i], this), row, column);
+    }
+
+    for (int column = 0; column < columns; ++column) {
+        m_grid->setColumnStretch(column, 1);
+    }
+
+    const int rows = static_cast<int>(std::ceil(static_cast<double>(configs.size()) / columns));
+    for (int row = 0; row < rows; ++row) {
+        m_grid->setRowStretch(row, 1);
+    }
+
+    statusBar()->showMessage(QString("Loaded %1 camera(s)").arg(configs.size()));
+}
+
+void MainWindow::clearGrid()
+{
+    while (QLayoutItem* item = m_grid->takeAt(0)) {
+        if (QWidget* widget = item->widget()) {
+            delete widget;
+        }
+        delete item;
+    }
 }

@@ -1,8 +1,9 @@
-﻿#pragma once
+#pragma once
+
 #include <QMainWindow>
 
+class QGridLayout;
 class QLabel;
-class CameraStream;
 class QWidget;
 
 class MainWindow : public QMainWindow
@@ -10,19 +11,13 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 public:
     explicit MainWindow(QWidget* parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() override;
 
 private:
-    QLabel* makeVideoLabel();
+    void reloadCameraGrid();
+    void clearGrid();
 
 private:
     QWidget* m_central = nullptr;
-
-    QLabel* m_label1 = nullptr;
-    QLabel* m_label2 = nullptr;
-    QLabel* m_label3 = nullptr;
-
-    CameraStream* m_cam1 = nullptr;
-    CameraStream* m_cam2 = nullptr;
-    CameraStream* m_cam3 = nullptr;
+    QGridLayout* m_grid = nullptr;
 };
